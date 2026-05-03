@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 import CampaignCarousel from '@/components/CampaignCarousel';
 import { createReader } from '@keystatic/core/reader';
-import config from '../../../keystatic.config'; 
+import config from '../../keystatic.config';
 import { FadeIn } from '@/components/animations';
 import HeroButtons from '@/components/HeroButtons'; // ✅ Импорт кнопок
 
