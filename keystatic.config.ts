@@ -1,144 +1,100 @@
+// Локальное хранилище: контент из репозитория. Для админки на Vercel с коммитами в Git
+// настройте GitHub mode: https://keystatic.com/docs/github-mode
+// и переменные NEXT_PUBLIC_KEYSTATIC_GITHUB_OWNER, NEXT_PUBLIC_KEYSTATIC_GITHUB_REPO
+// + KEYSTATIC_GITHUB_*, KEYSTATIC_SECRET, NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG
 import { config, fields, collection } from '@keystatic/core';
 
+const githubOwner = process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_OWNER;
+const githubRepo = process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB_REPO;
+
 export default config({
-  // 🔥 ХРАНИЛИЩЕ: GitHub (для работы на Vercel)
-  storage: {
-    kind: 'github',
-    repo: {
-      owner: 'АБУ_ИЛИ_ТВОЙ_НИК',  // 👈 ЗАМЕНИ на свой логин GitHub (без кавычек внутри!)
-      name: 'fondkdl-site',        // 👈 ЗАМЕНИ на точное имя репозитория
-    },
-  },
-  
+  storage:
+    githubOwner && githubRepo
+      ? { kind: 'github', repo: { owner: githubOwner, name: githubRepo } }
+      : { kind: 'local' },
   collections: {
-    // 🔹 СБОРЫ
     campaigns: collection({
-      label: '🧡 Сборы',
+      label: 'Сборы',
       slugField: 'title',
       path: 'src/content/campaigns/*',
       schema: {
-        title: fields.slug({ name: { label: 'Название сбора' } }),
-        image: fields.image({
-          label: 'Фото сбора',
-          directory: 'public/images/campaigns',
-          publicPath: '/images/campaigns/',
-        }),
-        goal: fields.number({ label: 'Цель (₽)' }),
-        raised: fields.number({ label: 'Собрано (₽)' }),
-        description: fields.text({ label: 'Описание' }),
-        status: fields.select({
-          label: 'Статус',
-          options: [
-            { label: '🟢 Активный', value: 'active' },
-            { label: '🔴 Завершён', value: 'completed' },
-            { label: '🟡 На паузе', value: 'paused' },
-          ],
-          defaultValue: 'active',
-        }),
+        title: fields.text({ label: 'Название' }),
+        description: fields.markdoc({ label: 'Описание' }),
+        goal: fields.integer({ label: 'Цель (₽)' }),
+        raised: fields.integer({ label: 'Собрано (₽)' }),
         urgency: fields.select({
           label: 'Срочность',
           options: [
             { label: 'Обычный', value: 'normal' },
             { label: '🔥 Срочно', value: 'urgent' },
           ],
-          defaultValue: 'normal',
+          defaultValue: 'normal', // ✅ ИСПРАВЛЕНИЕ 1: значение по умолчанию
         }),
+        status: fields.select({
+          label: 'Статус',
+          options: [
+            { label: 'Активен', value: 'active' },
+            { label: 'Завершён', value: 'completed' },
+          ],
+          defaultValue: 'active', // ✅ ИСПРАВЛЕНИЕ 2: значение по умолчанию
+        }),
+        image: fields.image({ label: 'Фото' }),
       },
     }),
-
-    // 🔹 НОВОСТИ
     news: collection({
-      label: '📰 Новости',
+      label: 'Новости',
       slugField: 'title',
       path: 'src/content/news/*',
       schema: {
-        title: fields.slug({ name: { label: 'Заголовок' } }),
-        image: fields.image({
-          label: 'Фото новости',
-          directory: 'public/images/news',
-          publicPath: '/images/news/',
-        }),
-        excerpt: fields.text({ label: 'Краткое описание' }),
-        content: fields.text({ label: 'Полный текст' }),
-        publishedAt: fields.datetime({ label: 'Дата публикации' }),
+        title: fields.text({ label: 'Заголовок' }),
+        excerpt: fields.text({ label: 'Кратко' }),
+        content: fields.markdoc({ label: 'Текст' }),
+        publishedAt: fields.date({ label: 'Дата публикации' }),
+        image: fields.image({ label: 'Фото' }),
       },
     }),
-
-    // 🔹 КОМАНДА
-    team: collection({
-      label: '👥 Команда',
-      slugField: 'name',
-      path: 'src/content/team/*',
-      schema: {
-        name: fields.slug({ name: { label: 'Имя Фамилия' } }),
-        role: fields.text({ label: 'Должность' }),
-        image: fields.image({
-          label: 'Фото',
-          directory: 'public/images/team',
-          publicPath: '/images/team/',
-        }),
-        bio: fields.text({ label: 'О себе' }),
-      },
-    }),
-
-    // 🔹 ОТЧЁТЫ
     reports: collection({
-      label: '📊 Отчёты',
+      label: 'Отчёты',
       slugField: 'title',
       path: 'src/content/reports/*',
       schema: {
-        title: fields.slug({ name: { label: 'Название отчёта' } }),
-        year: fields.number({ label: 'Год' }),
-        file: fields.file({
-          label: 'PDF файл',
-          directory: 'public/files/reports',
-          publicPath: '/files/reports/',
-          validation: { extension: ['pdf'] },
-        }),
-        description: fields.text({ label: 'Описание' }),
+        title: fields.text({ label: 'Название' }),
+        year: fields.integer({ label: 'Год' }),
+        file: fields.file({ label: 'PDF-файл' }),
       },
     }),
-
-    // 🔹 УЧРЕДИТЕЛЬНЫЕ ДОКУМЕНТЫ
     foundingDocuments: collection({
-      label: '📄 Документы',
+      label: 'Документы',
       slugField: 'title',
       path: 'src/content/documents/*',
       schema: {
-        title: fields.slug({ name: { label: 'Название файла' } }),
+        title: fields.text({ label: 'Название' }),
         description: fields.text({ label: 'Описание' }),
-        file: fields.file({
-          label: 'Загрузить PDF',
-          directory: 'public/files',
-          publicPath: '/files/',
-          validation: { extension: ['pdf'] },
-        }),
+        file: fields.file({ label: 'PDF-файл' }),
       },
     }),
-
-    // 🔹 ЗАДАЧИ ДЛЯ ВОЛОНТЁРОВ
     volunteerTasks: collection({
-      label: '🤝 Задачи для волонтёров',
+      label: 'Задачи волонтёров',
       slugField: 'title',
       path: 'src/content/volunteer-tasks/*',
       schema: {
-        title: fields.slug({ name: { label: 'Название задачи' } }),
-        description: fields.text({ label: 'Описание задачи' }),
+        title: fields.text({ label: 'Название' }),
+        description: fields.text({ label: 'Описание' }),
         category: fields.select({
           label: 'Категория',
           options: [
-            { label: '📦 Помощь с вещами', value: 'items' },
-            { label: '🚗 Транспорт', value: 'transport' },
-            { label: '👥 Мероприятия', value: 'events' },
-            { label: '💻 Онлайн-помощь', value: 'online' },
-            { label: '🏠 Домашние дела', value: 'home' },
+            { label: 'Мероприятия', value: 'events' },
+            { label: 'Вещи', value: 'items' },
+            { label: 'Транспорт', value: 'transport' },
+            { label: 'Онлайн', value: 'online' },
+            { label: 'Другое', value: 'other' },
           ],
           defaultValue: 'events',
         }),
-        timeRequired: fields.text({ label: 'Сколько времени нужно' }),
-        location: fields.text({ label: 'Место / Город' }),
-        contact: fields.text({ label: 'Контакт для связи' }),
-        isActive: fields.checkbox({ label: 'Актуально', defaultValue: true }),
+        timeRequired: fields.text({ label: 'Время (напр. 2 часа)' }),
+        location: fields.text({ label: 'Место' }),
+        contact: fields.text({ label: 'Контакт' }),
+        isActive: fields.checkbox({ label: 'Активна', defaultValue: true }),
       },
     }),
   },

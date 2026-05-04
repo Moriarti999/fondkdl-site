@@ -9,14 +9,13 @@ export default function HeroButtons() {
   const [needHelpModal, setNeedHelpModal] = useState(false);
   const [helpModal, setHelpModal] = useState(false);
   const [donorModal, setDonorModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'donation' | 'donor'>('donation');
 
   return (
     <>
       <div className="flex flex-wrap justify-center gap-3">
         {/* Хочу помочь */}
         <button 
-          onClick={() => { setModalMode('donation'); setHelpModal(true); }} 
+          onClick={() => setHelpModal(true)} 
           className="px-6 py-3 bg-white text-orange-700 rounded-xl font-bold text-base hover:bg-yellow-50 hover:scale-105 transition-all shadow-md"
         >
           Хочу помочь ❤️
@@ -40,7 +39,7 @@ export default function HeroButtons() {
         
         {/* Донорство */}
         <button 
-          onClick={() => { setModalMode('donor'); setDonorModal(true); }} 
+          onClick={() => setDonorModal(true)} 
           className="px-6 py-3 bg-red-600 border-2 border-white text-white rounded-xl font-bold text-base hover:bg-red-700 hover:scale-105 transition-all"
         >
           Донорство 🩸
@@ -57,7 +56,7 @@ export default function HeroButtons() {
 
       {/* Модальные окна */}
       <NeedHelpModal isOpen={needHelpModal} onClose={() => setNeedHelpModal(false)} />
-      <HelpModal isOpen={helpModal} onClose={() => setHelpModal(false)} mode={modalMode} />
+      <HelpModal isOpen={helpModal} onClose={() => setHelpModal(false)} />
       <DonorModal isOpen={donorModal} onClose={() => setDonorModal(false)} />
     </>
   );

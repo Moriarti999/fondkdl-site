@@ -1,20 +1,21 @@
 // 🔥 Server Component + отключаем кэш
 export const dynamic = 'force-dynamic';
-
 import { createReader } from '@keystatic/core/reader';
 import config from '../../../keystatic.config';
 import Image from 'next/image';
-import { FadeIn } from '@/components/animations';
 
-// Получаем новости из Keystatic
+// 🔥 ЛОКАЛЬНАЯ БЕЗОПАСНАЯ ОБЁРТКА (гарантирует, что не будет undefined)
+function FadeIn({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
 async function getNews() {
   try {
     const reader = createReader(process.cwd(), config);
     const all = await reader.collections.news.all();
-    // Сортируем по дате: новые сверху
     return all.sort((a: any, b: any) => {
-      const dateA = new Date(a.entry.publishedAt || 0).getTime();
-      const dateB = new Date(b.entry.publishedAt || 0).getTime();
+      const dateA = new Date(a.entry?.publishedAt || 0).getTime();
+      const dateB = new Date(b.entry?.publishedAt || 0).getTime();
       return dateB - dateA;
     });
   } catch (error) {
@@ -28,18 +29,14 @@ export default async function NewsPage() {
 
   return (
     <main className="min-h-screen bg-white text-gray-800">
-      {/* Hero */}
       <FadeIn>
         <section className="bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white py-16 px-4 text-center">
           <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">Новости фонда 📰</h1>
-          <p className="text-lg opacity-95 max-w-2xl mx-auto">
-            Следите за нашими успехами, акциями и историями подопечных
-          </p>
+          <p className="text-lg opacity-95 max-w-2xl mx-auto">Следите за нашими успехами, акциями и историями подопечных</p>
         </section>
       </FadeIn>
 
-      {/* Список новостей */}
-      <FadeIn delay={0.1}>
+      <FadeIn>
         <section className="py-16 px-4 bg-orange-50">
           <div className="max-w-4xl mx-auto">
             {news.length === 0 ? (
@@ -49,73 +46,36 @@ export default async function NewsPage() {
               </div>
             ) : (
               <div className="space-y-8">
-                {news.map(({ slug, entry }: any) => (
-                  <article key={slug} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-orange-100">
-                    {entry.image?.src && (
-                      <div className="h-56 md:h-72 relative">
-                        <Image
-                          src={entry.image.src}
-                          alt={entry.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6 md:p-8">
-                      <div className="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        {entry.publishedAt && (
-                          <span>📅 {new Date(entry.publishedAt).toLocaleDateString('ru-RU')}</span>
-                        )}
-                      </div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{entry.title}</h2>
-                      {entry.excerpt && (
-                        <p className="text-lg text-gray-600 mb-4 italic border-l-4 border-orange-400 pl-4">
-                          {entry.excerpt}
-                        </p>
+                {news.map(({ slug, entry }: any) => {
+                  // 🔥 Безопасная обработка текста (убирает падение при Markdoc-функциях)
+                  const content = typeof entry?.content === 'function' ? entry.content() : (entry?.content || '');
+                  
+                  return (
+                    <article key={slug} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-orange-100 p-6">
+                      {entry.image?.src && (
+                        <div className="h-56 md:h-72 relative mb-6 rounded-xl overflow-hidden">
+                          <Image src={entry.image.src} alt={entry.title} fill className="object-cover" />
+                        </div>
                       )}
-                      <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {entry.content}
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                      
+                      {entry.publishedAt && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                          📅 {new Date(entry.publishedAt).toLocaleDateString('ru-RU')}
+                        </div>
+                      )}
+                      
+                      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{entry.title}</h2>
+                      
+                      {entry.excerpt && (
+                        <p className="text-lg text-gray-600 mb-4 italic border-l-4 border-orange-400 pl-4">{entry.excerpt}</p>
+                      )}
+                      
+                      <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">{content}</div>
+                    </article>
+                  );
+                })}
               </div>
             )}
-          </div>
-        </section>
-      </FadeIn>
-
-            {/* CTA: Соцсети */}
-      <FadeIn delay={0.2}>
-        <section className="py-16 px-4 bg-white text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="font-heading text-2xl md:text-3xl font-bold text-orange-800 mb-4">
-              Хотите быть в курсе?
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Подпишитесь на наши соцсети, чтобы не пропустить важные новости
-            </p>
-            <div className="flex justify-center gap-4 flex-wrap">
-              {/* Telegram — замените ссылку на вашу */}
-              <a 
-                href="https://t.me/dobrokdl" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-              >
-                <span className="text-xl">✈️</span> Telegram
-              </a>
-              
-              {/* ВКонтакте — ваша ссылка */}
-              <a 
-                href="https://vk.com/dobrokdl" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-blue-700 text-white rounded-xl font-medium hover:bg-blue-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-              >
-                <span className="text-xl">💬</span> ВКонтакте
-              </a>
-            </div>
           </div>
         </section>
       </FadeIn>
