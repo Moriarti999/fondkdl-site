@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { createReader } from '@keystatic/core/reader';
-import config from '../../../keystatic.config';
+import config from '@root/keystatic.config';
 import Image from 'next/image';
 import { entryImageUrl } from '@/lib/entry-image-url';
 

@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 import CampaignCarousel from '@/components/CampaignCarousel';
 import { createReader } from '@keystatic/core/reader';
-import config from '../../keystatic.config';
+import config from '@root/keystatic.config';
 import { entryImageUrl } from '@/lib/entry-image-url';
 
 async function getHomeCampaigns() {

@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import { createReader } from '@keystatic/core/reader';
-import config from '../../../keystatic.config';
+import config from '@root/keystatic.config';
 import { FadeIn } from '@/components/animations';
 
 // --- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ (ЧИНИТ ССЫЛКИ) ---
